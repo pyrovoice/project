@@ -1,24 +1,35 @@
+<app-spinner class="float-right" *ngIf="loading"></app-spinner>
 <div *ngIf="floors.length > 0" class="container">
+  <div class="flex justify-content-between mb-3">
+    <input type="text" (keyup)="inputChanged($event)" placeholder="Search">
+    <a class="btn-link" routerLink="/add">Add a product</a>
+  </div>
   <div class="card">
     <div class="flex">
-      <select (change)="_getSections($event.target.value)">
+      <select (change)="loadData($event.target.value)" class="custom-select">
         <option disabled hidden selected>Select a floor</option>
         <option *ngFor="let floor of floors" [value]="floor.id">{{floor.name}}</option>
       </select>
       <ng-container *ngIf="sections.length > 0">
-        <button *ngFor="let section of sections" class="buton-link"
-          (click)="_getProducts(section.id)">{{section.name}}</button>
+        <button *ngFor="let section of sections" class="button-blue"
+          (click)="_getProductsBySection(section.id)">{{section.name}}</button>
       </ng-container>
     </div>
     <table *ngIf="products.length > 0">
       <tr>
         <th>ID</th>
-        <th>Name</th>
+        <th>Code</th>
+        <th>Quantity</th>
+        <th>Location</th>
+        <th></th>
       </tr>
-      <ng-container *ngFor="let product of products">
-        <tr>
+      <ng-container *ngFor="let product of products; let i = index">
+        <tr [ngClass]="{'table-striped': i%2 == 0 }">
           <td>{{product.id}}</td>
-          <td>{{product.name}}</td>
+          <td>{{product.code}}</td>
+          <td>{{product.quantity}}</td>
+          <td>{{product.parentSection.parentFloor.id + "/" + product.parentSection.id}}</td>
+          <td><a class="btn-link" [routerLink]="'/add/' + product.id">Edit</a></td>
         </tr>
       </ng-container>
     </table>

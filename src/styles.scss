@@ -1,3 +1,4 @@
+@import "~@ng-select/ng-select/themes/default.theme.css";
 /* You can add global styles to this file, and also import other style files */
 
 /*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */
@@ -349,3 +350,106 @@
   [hidden] {
     display: none;
   }
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus,
+option:focus {
+    outline: none;
+}
+
+.flex {
+  display: flex;
+}
+
+.justify-content-between{
+  justify-content: space-between;
+}
+
+.btn-link{
+  border: 3px solid deepskyblue;
+  border-radius: 5px;
+  text-decoration: none;
+  padding: 0.5rem;
+  transition: background 0.4s;
+  color:black;
+}
+
+.btn-link:hover{
+  background-color: deepskyblue;
+}
+
+input{
+  border: 2px solid lightgrey;
+  padding: 0.5rem;
+  border-radius: 5px;
+  transition: background 0.4s;
+}
+
+input:hover{
+  background-color: rgb(243, 243, 243);
+}
+
+.container {
+  max-width: 65%;
+
+  @media only screen and (max-width: 768px) {
+    max-width: 100%;
+  }
+
+  margin: 1rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.form{
+  max-width: 18rem;
+  margin: auto;
+  margin-top: 5rem;
+  border: 1px solid lightgrey;
+  border-radius: 5px;
+  padding: 3.5rem;
+}
+
+
+select {
+  transition: background 0.4s, color 0.4s;
+  border: 1px solid lightgrey;
+  padding: 0.5rem;
+}
+
+select:hover {
+  background-color: rgb(241, 241, 241);
+}
+
+select:hover>option {
+  background-color: white;
+}
+
+
+
+.button-blue {
+  background-color: transparent;
+  color: blue;
+  cursor: pointer;
+  border: 0;
+  padding: 0.5rem;
+  margin-left: 2rem;
+  background-position: center;
+  transition: background 0.4s, color 0.4s;
+  border-radius: 5px;
+}
+
+.button-blue:hover {
+  background: #47a7f5 radial-gradient(circle, transparent 1%, #47a7f5 1%) center/15000%;
+  color: white;
+}
+
+.button-blue:active,
+.button-blue:focus {
+  background-color: #47a7f5;
+  background-size: 100%;
+  transition: background 0s;
+  color: white;
+}

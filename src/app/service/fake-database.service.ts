@@ -5,6 +5,7 @@ import { Product } from '../model/product.model';
 
 @Injectable()
 export class FakeDatabase {
+    
 
     floors: Floor[] = [];
     sections: Section[] = [];
@@ -13,6 +14,9 @@ export class FakeDatabase {
     public static sectionId = 0;
     public static productId = 0;
 
+    constructor(){
+        this.initializeData();
+    }
 
     initializeData() {
         for (let i = 0; i < 3; i++) {
@@ -67,6 +71,10 @@ export class FakeDatabase {
         return this.sections.filter(s => s.parentFloor.id == floodId);
     }
 
+    getSections() {
+        return this.sections;
+    }
+
     deleteSectionById(id) {
         let section = this.sections.find(s => s.id = id);
         if (!section) {
@@ -81,7 +89,7 @@ export class FakeDatabase {
         if (!parentSection) {
             return;
         }
-        let newProduct = { id: FakeDatabase.productId++, name: name, parentSection: parentSection };
+        let newProduct = { id: FakeDatabase.productId++, code: name, parentSection: parentSection, quantity: FakeDatabase.productId };
         this.products.push(newProduct);
         return newProduct;
     }

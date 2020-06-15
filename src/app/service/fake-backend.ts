@@ -3,6 +3,8 @@ import { HttpRequest, HttpResponse, HttpHandler, HttpEvent, HttpInterceptor, HTT
 import { Observable, of, throwError } from 'rxjs';
 import { delay, mergeMap, materialize, dematerialize } from 'rxjs/operators';
 import { FakeDatabase } from './fake-database.service';
+import { ProductDTO } from '../model/productDTO';
+import * as _ from 'lodash';
 
 @Injectable()
 export class FakeBackendInterceptor implements HttpInterceptor {
@@ -14,11 +16,15 @@ export class FakeBackendInterceptor implements HttpInterceptor {
         const fb = this.fakeDatabase;
         let getSectionRegex = new RegExp('.*\/data\/getsections\/[0-9]+');
         let getProductsRegex = new RegExp('.*\/data\/getproducts\/[0-9]+');
+        let getProductsByFloorRegex = new RegExp('.*\/data\/getproductsByFloor\/[0-9]+');
+        let getproductsByAnyRegex = new RegExp('.*\/data\/getProductsByAny\/.*');
+
+
         // wrap in delayed observable to simulate server api call
         return of(null)
             .pipe(mergeMap(handleRoute))
             .pipe(materialize()) // call materialize and dematerialize to ensure delay even if an error is thrown (https://github.com/Reactive-Extensions/RxJS/issues/648)
-            .pipe(delay(500))
+            .pipe(delay(400))
             .pipe(dematerialize());
 
         function handleRoute() {
@@ -26,12 +32,23 @@ export class FakeBackendInterceptor implements HttpInterceptor {
             switch (true) {
                 case url.endsWith('/data/getfloors') && method === 'GET':
                     return getFloors(fb);
+
+                case url.endsWith('/data/getsections') && method === 'GET':
+                    return getSections(fb);
                 case url.match(getSectionRegex) && method === 'GET':
                     split = url.split('/');
                     return getSectionByFloorId(fb, parseInt(split[split.length - 1]));
                 case url.match(getProductsRegex) && method === 'GET':
                     split = url.split('/');
                     return getProductsBySectionId(fb, parseInt(split[split.length - 1]));
+                case url.match(getProductsByFloorRegex) && method === 'GET':
+                    split = url.split('/');
+                    return getProductsByFloorId(fb, parseInt(split[split.length - 1]));
+                case url.match(getproductsByAnyRegex) && method === 'GET':
+                    split = url.split('/');
+                    return getProductsByAny(fb, split[split.length - 1]);
+                case url.endsWith('/data/putproduct/') && method === 'PUT':
+                    return putProduct(fb, body);
                 default:
                     return next.handle(request);
             }
@@ -40,6 +57,10 @@ export class FakeBackendInterceptor implements HttpInterceptor {
         // route functions
         function getFloors(fakeDatabase: FakeDatabase) {
             return ok({ floors: fakeDatabase.getFloors() });
+        }
+
+        function getSections(fakeDatabase: FakeDatabase) {
+            return ok({ floors: fakeDatabase.getSections() });
         }
 
         function getSectionByFloorId(fakeDatabase: FakeDatabase, id: number) {
@@ -58,6 +79,33 @@ export class FakeBackendInterceptor implements HttpInterceptor {
             } else {
                 return error("No sections for id " + id);
             }
+        }
+
+        function getProductsByFloorId(fakeDatabase: FakeDatabase, id: number) {
+            let products = fakeDatabase.products.filter(p => p.parentSection.parentFloor.id == id);
+            if (products) {
+                return ok({ products: products });
+            } else {
+                return error("No floor for id " + id);
+            }
+        }
+
+        function getProductsByAny(fakeDatabase: FakeDatabase, search: string) {
+            let products =  fakeDatabase.products.filter(p => p.id.toString().includes(search) ||
+                p.code.includes(search) ||
+                p.quantity.toString().includes(search) ||
+                p.parentSection.name.includes(search) ||
+                p.parentSection.parentFloor.name.includes(search)
+            )
+            return ok({ products: products });
+        }
+
+
+
+        function putProduct(fakeDatabase: FakeDatabase, body: ProductDTO) {
+            let parent = fakeDatabase.sections.find(s => s.id == body.parentSectionId)
+            fakeDatabase.products.push({ id: FakeDatabase.productId++, quantity: body.quantity, parentSection: parent, code: body.code });
+            return ok();
         }
 
 

@@ -2,6 +2,7 @@ import { Section } from './section.model';
 
 export declare class Product{
     id: number;
-    name: string;
+    code: string;
     parentSection: Section;
+    quantity: number;
 }

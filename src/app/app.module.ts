@@ -8,16 +8,26 @@ import { FakeDatabase } from './service/fake-database.service';
 import { fakeBackendProvider } from './service/fake-backend';
 import { WarehouseService } from './service/warehouse.service';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { SpinnerComponent } from './component/spinner/spinner.component';
+import { AddProductComponent } from './component/add-product/add-product.component';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 @NgModule({
   declarations: [
     AppComponent,
-    ProductListPageComponent
+    ProductListPageComponent,
+    SpinnerComponent,
+    AddProductComponent,
+    
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    ReactiveFormsModule,
+    NgSelectModule, 
+    FormsModule
   ],
   providers: [FakeDatabase, fakeBackendProvider, WarehouseService, HttpClient],
   bootstrap: [AppComponent]
