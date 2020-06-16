@@ -66,7 +66,7 @@ export class AddProductComponent extends Unsubscribing implements OnInit {
     });
   }
 
-  resetSections(){
+  private resetSections(){
     this.ctrls.section.setValue("");
   }
 

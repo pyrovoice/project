@@ -34,7 +34,6 @@ export class FakeBackendInterceptor implements HttpInterceptor {
             switch (true) {
                 case url.endsWith('/data/getfloors') && method === 'GET':
                     return getFloors(fb);
-
                 case url.endsWith('/data/getsections') && method === 'GET':
                     return getSections(fb);
                 case url.match(getSectionRegex) && method === 'GET':
@@ -49,8 +48,6 @@ export class FakeBackendInterceptor implements HttpInterceptor {
                 case url.match(getproductbyidRegex) && method === 'GET':
                     split = url.split('/');
                     return getProductById(fb, parseInt(split[split.length - 1]));
-
-
                 case url.match(getproductsByAnyRegex) && method === 'GET':
                     split = url.split('/');
                     return getProductsByAny(fb, split[split.length - 1]);
@@ -97,11 +94,11 @@ export class FakeBackendInterceptor implements HttpInterceptor {
             }
         }
 
-        function getProductById(fakeDatabase: FakeDatabase, id: number){
+        function getProductById(fakeDatabase: FakeDatabase, id: number) {
             let product = fakeDatabase.products.find(p => p.id == id);
-            if(product){
-                return ok({product: product})
-            }else{
+            if (product) {
+                return ok({ product: product })
+            } else {
                 return error("No product for ID: " + id);
             }
         }
@@ -117,7 +114,6 @@ export class FakeBackendInterceptor implements HttpInterceptor {
         }
 
         function putProduct(fakeDatabase: FakeDatabase, body: ProductDTO) {
-
             if (body.id != null) {
                 updateProduct(fakeDatabase, body)
             } else {
@@ -140,10 +136,6 @@ export class FakeBackendInterceptor implements HttpInterceptor {
             let parent = fakeDatabase.sections.find(s => s.id == body.parentSectionId);
             fakeDatabase.products[existingProductID] = { id: body.id, quantity: body.quantity, parentSection: parent, code: body.code }
         }
-
-
-
-        // helper functions
 
         function ok(body?) {
             return of(new HttpResponse({ status: 200, body }))
