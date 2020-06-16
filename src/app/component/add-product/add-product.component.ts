@@ -26,32 +26,42 @@ export class AddProductComponent extends Unsubscribing implements OnInit {
     { updateOn: "blur" });
   creationRequest = EnumProcess.INITIAL;
   EnumProcess = EnumProcess;
+  productToEdit: Product;
 
 
-  constructor(private warehouseService: WarehouseService, private route: ActivatedRoute ) {
+  constructor(private warehouseService: WarehouseService, private route: ActivatedRoute) {
     super();
   }
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.subscribe(async params => {
+      await this.getFloors();
       let id = params.get("id")
-      if()
-  })
-}
-    this.getFloors();
+      if (id) {
+        let promise = await this.warehouseService.getproductById(id).toPromise();
+        this.productToEdit = promise.product;
+        await this.getSections(this.productToEdit.parentSection.parentFloor.id)
+        this.f.code.setValue(this.productToEdit.code);
+        this.f.code.disable();
+        this.f.quantity.setValue(this.productToEdit.quantity);
+        this.f.floor.setValue(this.productToEdit.parentSection.parentFloor.id);
+        this.f.section.setValue(this.productToEdit.parentSection.id);
+      }
+    });
   }
 
   getFloors() {
     this.loading = true;
     this.warehouseService.getFloors().pipe(takeUntil(this.unsubscribe$)).subscribe(data => {
       this.floors = data.floors;
-      console.log(this.floors)
       this.loading = false;
     });
 
   }
 
   getSections(id) {
+    //Reset sections on loading a new floor
+    this.f.section.setValue("");
     this.warehouseService.getSectionByFloorId(id).pipe(takeUntil(this.unsubscribe$)).subscribe(data => {
       this.sections = data.sections;
     });
@@ -65,9 +75,8 @@ export class AddProductComponent extends Unsubscribing implements OnInit {
       return;
     }
     this.creationRequest = EnumProcess.LOADING
-    let newProduct = { code: this.f.code.value, parentSectionId: this.f.section.value, quantity: this.f.quantity.value } as ProductDTO;
+    let newProduct = { id: this.productToEdit?.id, code: this.f.code.value, parentSectionId: this.f.section.value, quantity: this.f.quantity.value } as ProductDTO;
     this.warehouseService.putProduct(newProduct).pipe(takeUntil(this.unsubscribe$)).subscribe(() => {
-      console.log("success")
       this.creationRequest = EnumProcess.SUCCESS
     }, error => {
       this.creationRequest = EnumProcess.FAILURE

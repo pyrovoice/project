@@ -3,10 +3,11 @@ import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { Product } from '../model/product.model';
 import { ProductDTO } from '../model/productDTO';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class WarehouseService {
-
+    
     constructor(private http: HttpClient) {
     }
 
@@ -30,6 +31,14 @@ export class WarehouseService {
                 return data;
             }));
     }
+
+    getproductById(id: string) {
+        return this.http.get<any>(`/data/getproductbyid/${id}`)
+            .pipe(map(data => {
+                return data;
+            }));
+      }
+  
 
     getSections() {
         return this.http.get<any>(`/data/getproducts/`)

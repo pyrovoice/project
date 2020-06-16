@@ -18,6 +18,8 @@ export class FakeBackendInterceptor implements HttpInterceptor {
         let getProductsRegex = new RegExp('.*\/data\/getproducts\/[0-9]+');
         let getProductsByFloorRegex = new RegExp('.*\/data\/getproductsByFloor\/[0-9]+');
         let getproductsByAnyRegex = new RegExp('.*\/data\/getProductsByAny\/.*');
+        let getproductbyidRegex = new RegExp('.*\/data\/getproductbyid\/[0-9]+');
+
 
 
         // wrap in delayed observable to simulate server api call
@@ -44,6 +46,11 @@ export class FakeBackendInterceptor implements HttpInterceptor {
                 case url.match(getProductsByFloorRegex) && method === 'GET':
                     split = url.split('/');
                     return getProductsByFloorId(fb, parseInt(split[split.length - 1]));
+                case url.match(getproductbyidRegex) && method === 'GET':
+                    split = url.split('/');
+                    return getProductById(fb, parseInt(split[split.length - 1]));
+
+
                 case url.match(getproductsByAnyRegex) && method === 'GET':
                     split = url.split('/');
                     return getProductsByAny(fb, split[split.length - 1]);
@@ -90,8 +97,17 @@ export class FakeBackendInterceptor implements HttpInterceptor {
             }
         }
 
+        function getProductById(fakeDatabase: FakeDatabase, id: number){
+            let product = fakeDatabase.products.find(p => p.id == id);
+            if(product){
+                return ok({product: product})
+            }else{
+                return error("No product for ID: " + id);
+            }
+        }
+
         function getProductsByAny(fakeDatabase: FakeDatabase, search: string) {
-            let products =  fakeDatabase.products.filter(p => p.id.toString().includes(search) ||
+            let products = fakeDatabase.products.filter(p => p.id.toString().includes(search) ||
                 p.code.includes(search) ||
                 p.quantity.toString().includes(search) ||
                 p.parentSection.name.includes(search) ||
@@ -100,12 +116,29 @@ export class FakeBackendInterceptor implements HttpInterceptor {
             return ok({ products: products });
         }
 
-
-
         function putProduct(fakeDatabase: FakeDatabase, body: ProductDTO) {
-            let parent = fakeDatabase.sections.find(s => s.id == body.parentSectionId)
-            fakeDatabase.products.push({ id: FakeDatabase.productId++, quantity: body.quantity, parentSection: parent, code: body.code });
+
+            if (body.id != null) {
+                updateProduct(fakeDatabase, body)
+            } else {
+                createProduct(fakeDatabase, body);
+            }
             return ok();
+        }
+
+        function createProduct(fakeDatabase: FakeDatabase, body: ProductDTO) {
+            let parent = fakeDatabase.sections.find(s => s.id == body.parentSectionId);
+            fakeDatabase.products.push({ id: FakeDatabase.productId++, quantity: body.quantity, parentSection: parent, code: body.code });
+        }
+
+        function updateProduct(fakeDatabase: FakeDatabase, body: ProductDTO) {
+            let existingProductID = fakeDatabase.products.findIndex(p => p.id == body.id)
+            if (existingProductID == -1) {
+                createProduct(fakeDatabase, body);
+                return;
+            }
+            let parent = fakeDatabase.sections.find(s => s.id == body.parentSectionId);
+            fakeDatabase.products[existingProductID] = { id: body.id, quantity: body.quantity, parentSection: parent, code: body.code }
         }
 
 

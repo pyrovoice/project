@@ -5,7 +5,7 @@
         <span>Code:</span>
         <input type="text" formControlName="code">
       </label>
-      <div class="error" *ngIf="f.code.invalid && (f.code.dirty || f.code.touched)">Must be 2-4 uppercase letter, a
+      <div class="error" *ngIf="f.code.invalid && (f.code.touched)">Must be 2-4 uppercase letter, a
         space then 4-6 digits</div>
     </div>
     <div>
@@ -32,13 +32,13 @@
           <option *ngFor="let section of sections" [value]="section.id">{{section.name}}</option>
         </select>
       </label>
-      <div class="error"
+      <div class="error" 
         *ngIf="(f.floor.invalid && (f.floor.dirty || f.floor.touched)) || (f.section.invalid && (f.section.dirty || f.section.touched))">
         A section and a floor must be selected</div>
     </div>
     <div class="flex justify-content-between">
-      <a class="btn-link" routerLink="/">Cancel</a>
-      <button class="button-blue" type="submit" (click)="onSubmit()">Submit</button>
+      <a class="button-blue"  routerLink="/">Cancel</a>
+      <button class="btn-link" type="submit" (click)="onSubmit()">Submit</button>
     </div>
   </form>
   <div *ngIf="creationRequest == EnumProcess.SUCCESS">
