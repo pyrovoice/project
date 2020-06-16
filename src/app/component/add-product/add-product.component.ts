@@ -18,7 +18,7 @@ export class AddProductComponent extends Unsubscribing implements OnInit {
   floors = [];
   sections = [];
   form = new FormGroup({
-    code: new FormControl('', [Validators.required, Validators.pattern("^[A-Z]{2,4} [0-9]{4,6}$")]),
+    code: new FormControl("", [Validators.required, Validators.pattern("^[A-Z]{2,4} [0-9]{4,6}$")]),
     quantity: new FormControl("", [Validators.required, Validators.pattern("[0-9]*")]),
     floor: new FormControl("", [Validators.required]),
     section: new FormControl("", [Validators.required]),
@@ -41,11 +41,11 @@ export class AddProductComponent extends Unsubscribing implements OnInit {
         let promise = await this.warehouseService.getproductById(id).toPromise();
         this.productToEdit = promise.product;
         await this.getSections(this.productToEdit.parentSection.parentFloor.id)
-        this.f.code.setValue(this.productToEdit.code);
-        this.f.code.disable();
-        this.f.quantity.setValue(this.productToEdit.quantity);
-        this.f.floor.setValue(this.productToEdit.parentSection.parentFloor.id);
-        this.f.section.setValue(this.productToEdit.parentSection.id);
+        this.ctrls.code.setValue(this.productToEdit.code);
+        this.ctrls.code.disable();
+        this.ctrls.quantity.setValue(this.productToEdit.quantity);
+        this.ctrls.floor.setValue(this.productToEdit.parentSection.parentFloor.id);
+        this.ctrls.section.setValue(this.productToEdit.parentSection.id);
       }
     });
   }
@@ -60,14 +60,17 @@ export class AddProductComponent extends Unsubscribing implements OnInit {
   }
 
   getSections(id) {
-    //Reset sections on loading a new floor
-    this.f.section.setValue("");
+    this.resetSections();
     this.warehouseService.getSectionByFloorId(id).pipe(takeUntil(this.unsubscribe$)).subscribe(data => {
       this.sections = data.sections;
     });
   }
 
-  get f() { return this.form.controls };
+  resetSections(){
+    this.ctrls.section.setValue("");
+  }
+
+  get ctrls() { return this.form.controls };
 
   onSubmit() {
     if (this.form.invalid) {
@@ -75,7 +78,11 @@ export class AddProductComponent extends Unsubscribing implements OnInit {
       return;
     }
     this.creationRequest = EnumProcess.LOADING
-    let newProduct = { id: this.productToEdit?.id, code: this.f.code.value, parentSectionId: this.f.section.value, quantity: this.f.quantity.value } as ProductDTO;
+    const newProduct = { 
+      id: this.productToEdit?.id, 
+      code: this.ctrls.code.value, 
+      parentSectionId: this.ctrls.section.value, 
+      quantity: this.ctrls.quantity.value } as ProductDTO;
     this.warehouseService.putProduct(newProduct).pipe(takeUntil(this.unsubscribe$)).subscribe(() => {
       this.creationRequest = EnumProcess.SUCCESS
     }, error => {
